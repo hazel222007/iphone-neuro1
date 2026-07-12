@@ -67,3 +67,18 @@ Timing is still controlled with `performance.now()` inside the same timed phase 
 ## GitHub Pages
 
 The project remains GitHub Pages compatible. Upload the full folder and enable Pages from the root of the main branch.
+
+
+## iPhone 16 Pro Max / Irusu Monster tuning update
+
+The uploaded phone VR screenshot was (736, 1600). It appears vertically stacked because it is a rotated screenshot representation. For actual headset use, the iPhone should be rotated to landscape and placed inside the Irusu Monster.
+
+Changes made:
+- Cardboard fallback remains side-by-side in landscape for headset use.
+- Portrait screenshot mode now stacks the two eyes vertically so the screenshot representation matches the user's example.
+- Each eye window has a rounded lens-style vignette similar to Cardboard/phone VR apps.
+- Each eye image is slightly enlarged to 108% to fill the optical window.
+- Left and right eyes use small opposite crop offsets to create a mild pseudo-stereo room-depth impression.
+- Top and bottom text overlays are reduced so they do not distract from the room stimulus.
+- In `vr_subtle_moving_protocol.html`, the subtle cue is now visible during the neutral grey baseline also.
+- The cue was slowed and reduced in opacity so it remains gentle but detectable in the headset.

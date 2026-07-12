@@ -47,3 +47,14 @@ This package now includes VR-compatible protocol files:
 These use A-Frame/WebXR where supported. On iPhone Safari, the files automatically fall back to stereoscopic side-by-side Cardboard mode for phone-based VR headsets such as Irusu Monster.
 
 See `docs/vr_conversion_notes.md` for implementation details.
+
+
+## Irusu Monster iPhone tuning update
+
+The VR files were tuned for iPhone 16 Pro Max inside the Irusu Monster headset:
+- `vr_static_protocol.html`
+- `vr_subtle_moving_protocol.html`
+
+Use the phone in landscape orientation inside the headset. If a phone screenshot appears vertically stacked, that is the rotated screenshot view of the same two-eye layout.
+
+The subtle moving cue now appears during both neutral grey baseline and colour exposure.
