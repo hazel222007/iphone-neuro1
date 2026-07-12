@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>NeuroColor Atlas – VR and Standard Protocols</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;color:#111;padding:28px}
+  .wrap{max-width:1080px;margin:0 auto;background:white;border:1px solid #ddd;border-radius:18px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.10)}
+  h1,h2{margin-top:0}
+  p,li{line-height:1.55}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:18px;margin-top:20px}
+  .card{border:1px solid #ddd;border-radius:16px;padding:20px;background:#fafafa}
+  .card.vr{border-color:#111;background:#f7f9ff}
+  a.button{display:inline-block;text-decoration:none;background:#111;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;margin-top:10px}
+  a.secondary{background:#e8e8e8;color:#111;border:1px solid #ccc}
+  img{max-width:100%;border-radius:12px;border:1px solid #ddd}
+  code{background:#f2f2f2;padding:2px 6px;border-radius:6px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>NeuroColor Atlas – VR and Standard Protocols</h1>
+  <p>This project keeps the original psychology experiment logic and adds VR-compatible presentation files for WebXR and iPhone Cardboard-style viewing through the Irusu Monster headset.</p>
+
+  <img src="assets/base/exact_blue_room.png" alt="Exact base room image preview" />
+
+  <h2>VR-compatible protocols</h2>
+  <div class="grid">
+    <div class="card vr">
+      <h2>VR Static Colour Room</h2>
+      <p>Best for <strong>strict physiological interpretation</strong>.</p>
+      <p>Uses A-Frame/WebXR when supported. Falls back to stereoscopic side-by-side Cardboard mode on iPhone Safari.</p>
+      <a class="button" href="vr_static_protocol.html">Open VR Static Protocol</a>
+    </div>
+    <div class="card vr">
+      <h2>VR Subtle Moving Cue Colour Room</h2>
+      <p>Best for <strong>older adults / dementia participants</strong> to reduce boredom and maintain attention.</p>
+      <p>Uses the same VR/iPhone fallback logic with a gentle same-colour moving cue.</p>
+      <a class="button" href="vr_subtle_moving_protocol.html">Open VR Subtle Moving Cue Protocol</a>
+    </div>
+  </div>
+
+  <h2>Original standard browser protocols</h2>
+  <div class="grid">
+    <div class="card">
+      <h2>Static Colour Room</h2>
+      <a class="button secondary" href="static_protocol.html">Open Standard Static Protocol</a>
+    </div>
+    <div class="card">
+      <h2>Subtle Moving Cue Colour Room</h2>
+      <a class="button secondary" href="subtle_moving_protocol.html">Open Standard Subtle Moving Cue Protocol</a>
+    </div>
+  </div>
+
+  <p style="margin-top:22px">Separate subjective ratings can be collected after exposure using <code>post_experiment_questionnaire.html</code>.</p>
+  <p><a class="button secondary" href="post_experiment_questionnaire.html">Open Post-Experiment Questionnaire</a></p>
+</div>
+</body>
+</html>

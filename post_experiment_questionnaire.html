@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>NeuroColor Atlas Post-Experiment Questionnaire</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;color:#111}
+  .screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px}
+  .screen.active{display:flex}
+  .panel{width:min(920px,95vw);background:white;border:1px solid #ddd;border-radius:18px;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+  h1,h2,h3{margin-top:0}
+  p{line-height:1.55}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:16px}
+  label{display:block;font-weight:600;margin-bottom:6px}
+  input,select,textarea{width:100%;padding:12px;border:1px solid #bbb;border-radius:10px;font-size:16px;background:white}
+  textarea{min-height:80px;resize:vertical}
+  button{border:0;border-radius:12px;padding:12px 18px;font-size:16px;font-weight:700;cursor:pointer;background:#111;color:white;margin:6px 8px 6px 0}
+  button.secondary{background:#e8e8e8;color:#111;border:1px solid #ccc}
+  .colourPreview{width:100%;height:140px;border-radius:16px;border:1px solid #333;margin:14px 0 18px}
+  .scale{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin:8px 0 18px}
+  .scale input{display:none}
+  .scale span{display:block;text-align:center;border:1px solid #bbb;border-radius:10px;padding:10px 4px;background:white;cursor:pointer}
+  .scale input:checked + span{background:#111;color:white;border-color:#111}
+  .anchors{display:flex;justify-content:space-between;margin-top:-12px;margin-bottom:12px;color:#555;font-size:13px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}.scale span{font-size:12px;padding:9px 2px}}
+</style>
+</head>
+<body>
+<section id="setup" class="screen active">
+  <div class="panel">
+    <h1>Post-Experiment Subjective Questionnaire</h1>
+    <p>Complete this after the colour-room exposure block. The colour order is fixed from 1 to 17.</p>
+    <div class="grid">
+      <div><label for="participantCode">Participant code</label><input id="participantCode" placeholder="e.g., NC001" /></div>
+      <div><label for="protocolMode">Protocol used</label>
+        <select id="protocolMode"><option>static</option><option>moving</option></select>
+      </div>
+    </div>
+    <button onclick="startQ()">Start Questionnaire</button>
+  </div>
+</section>
+
+<section id="question" class="screen">
+  <div class="panel">
+    <div id="progress"></div>
+    <h2 id="title">Colour</h2>
+    <div id="preview" class="colourPreview"></div>
+    <p id="details"></p>
+    <h3>Valence</h3>
+    <div class="scale" id="valenceScale"></div>
+    <div class="anchors"><span>Very unpleasant</span><span>Neutral</span><span>Very pleasant</span></div>
+    <h3>Arousal</h3>
+    <div class="scale" id="arousalScale"></div>
+    <div class="anchors"><span>Very calm</span><span>Neutral</span><span>Very excited</span></div>
+    <div class="grid">
+      <div>
+        <label for="emotionLabel">Closest emotion label</label>
+        <select id="emotionLabel">
+          <option value="">Select one</option>
+          <option>Calm</option><option>Pleasant</option><option>Happy</option><option>Alert</option>
+          <option>Excited</option><option>Tense</option><option>Unpleasant</option><option>Sad</option>
+          <option>Neutral</option><option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="confidenceRating">Confidence in this rating</label>
+        <select id="confidenceRating">
+          <option value="">Select one</option>
+          <option value="1">1 - Not confident</option><option value="2">2 - Slightly confident</option>
+          <option value="3">3 - Moderately confident</option><option value="4">4 - Confident</option>
+          <option value="5">5 - Very confident</option>
+        </select>
+      </div>
+    </div>
+    <label for="comments">Optional comment</label>
+    <textarea id="comments" placeholder="Any association, discomfort, or feeling about this colour"></textarea>
+    <button onclick="saveAndNext()">Next</button>
+    <button class="secondary" onclick="goBack()">Back</button>
+  </div>
+</section>
+
+<section id="final" class="screen">
+  <div class="panel">
+    <h2>Final Questions</h2>
+    <div class="grid">
+      <div>
+        <label for="fatigue">Overall fatigue after the task</label>
+        <select id="fatigue"><option value="">Select one</option><option value="1">1 - No fatigue</option><option value="2">2 - Mild</option><option value="3">3 - Moderate</option><option value="4">4 - High</option><option value="5">5 - Very high</option></select>
+      </div>
+      <div>
+        <label for="discomfort">Any VR discomfort/dizziness</label>
+        <select id="discomfort"><option value="">Select one</option><option value="1">1 - None</option><option value="2">2 - Mild</option><option value="3">3 - Moderate</option><option value="4">4 - High</option><option value="5">5 - Very high</option></select>
+      </div>
+    </div>
+    <label for="overallComments">Overall comments</label>
+    <textarea id="overallComments"></textarea>
+    <button onclick="finishQ()">Finish</button>
+  </div>
+</section>
+
+<section id="end" class="screen">
+  <div class="panel">
+    <h2>Questionnaire Completed</h2>
+    <button onclick="downloadCSV()">Download Questionnaire CSV</button>
+    <button class="secondary" onclick="downloadJSON()">Download Questionnaire JSON</button>
+    <button class="secondary" onclick="location.reload()">Start New Questionnaire</button>
+  </div>
+</section>
+
+<script>
+const COLOURS = [
+  {
+    "no": 1,
+    "name": "Red",
+    "hex": "#E09289",
+    "L": 70,
+    "a": 34.6,
+    "b": 20.0,
+    "C": 40,
+    "h": 30,
+    "file": "assets/stimuli/01_Red.png"
+  },
+  {
+    "no": 2,
+    "name": "Red-Orange",
+    "hex": "#E79875",
+    "L": 70,
+    "a": 25.7,
+    "b": 30.6,
+    "C": 40,
+    "h": 50,
+    "file": "assets/stimuli/02_Red-Orange.png"
+  },
+  {
+    "no": 3,
+    "name": "Orange",
+    "hex": "#D7A067",
+    "L": 70,
+    "a": 13.7,
+    "b": 37.6,
+    "C": 40,
+    "h": 70,
+    "file": "assets/stimuli/03_Orange.png"
+  },
+  {
+    "no": 4,
+    "name": "Yellow-Orange_Amber",
+    "hex": "#C8A762",
+    "L": 70,
+    "a": 3.5,
+    "b": 39.8,
+    "C": 40,
+    "h": 85,
+    "file": "assets/stimuli/04_Yellow-Orange_Amber.png"
+  },
+  {
+    "no": 5,
+    "name": "Yellow",
+    "hex": "#B7AD62",
+    "L": 70,
+    "a": -6.9,
+    "b": 39.4,
+    "C": 40,
+    "h": 100,
+    "file": "assets/stimuli/05_Yellow.png"
+  },
+  {
+    "no": 6,
+    "name": "Yellow-Green_Lime",
+    "hex": "#9DB46B",
+    "L": 70,
+    "a": -20.0,
+    "b": 34.6,
+    "C": 40,
+    "h": 120,
+    "file": "assets/stimuli/06_Yellow-Green_Lime.png"
+  },
+  {
+    "no": 7,
+    "name": "Green",
+    "hex": "#79BA80",
+    "L": 70,
+    "a": -32.8,
+    "b": 22.9,
+    "C": 40,
+    "h": 145,
+    "file": "assets/stimuli/07_Green.png"
+  },
+  {
+    "no": 8,
+    "name": "Blue-Green_Teal",
+    "hex": "#4EBE9D",
+    "L": 70,
+    "a": -39.4,
+    "b": 6.9,
+    "C": 40,
+    "h": 170,
+    "file": "assets/stimuli/08_Blue-Green_Teal.png"
+  },
+  {
+    "no": 9,
+    "name": "Cyan",
+    "hex": "#0FBFBD",
+    "L": 70,
+    "a": -38.6,
+    "b": -10.4,
+    "C": 40,
+    "h": 195,
+    "file": "assets/stimuli/09_Cyan.png"
+  },
+  {
+    "no": 10,
+    "name": "Turquoise",
+    "hex": "#00BCD9",
+    "L": 70,
+    "a": -30.6,
+    "b": -25.7,
+    "C": 40,
+    "h": 220,
+    "file": "assets/stimuli/10_Turquoise.png"
+  },
+  {
+    "no": 11,
+    "name": "Blue",
+    "hex": "#74AEF3",
+    "L": 70,
+    "a": 0.0,
+    "b": -40.0,
+    "C": 40,
+    "h": 270,
+    "file": "assets/stimuli/11_Blue.png"
+  },
+  {
+    "no": 12,
+    "name": "Blue-Violet_Indigo",
+    "hex": "#94A8F1",
+    "L": 70,
+    "a": 10.4,
+    "b": -38.6,
+    "C": 40,
+    "h": 285,
+    "file": "assets/stimuli/12_Blue-Violet_Indigo.png"
+  },
+  {
+    "no": 13,
+    "name": "Violet",
+    "hex": "#B79FE7",
+    "L": 70,
+    "a": 22.9,
+    "b": -32.8,
+    "C": 40,
+    "h": 305,
+    "file": "assets/stimuli/13_Violet.png"
+  },
+  {
+    "no": 14,
+    "name": "Purple",
+    "hex": "#CD99DA",
+    "L": 70,
+    "a": 30.6,
+    "b": -25.7,
+    "C": 40,
+    "h": 320,
+    "file": "assets/stimuli/14_Purple.png"
+  },
+  {
+    "no": 15,
+    "name": "Magenta",
+    "hex": "#DE93CA",
+    "L": 70,
+    "a": 36.3,
+    "b": -16.9,
+    "C": 40,
+    "h": 335,
+    "file": "assets/stimuli/15_Magenta.png"
+  },
+  {
+    "no": 16,
+    "name": "Pink_Rose",
+    "hex": "#EA90B9",
+    "L": 70,
+    "a": 39.4,
+    "b": -6.9,
+    "C": 40,
+    "h": 350,
+    "file": "assets/stimuli/16_Pink_Rose.png"
+  },
+  {
+    "no": 17,
+    "name": "Red-Violet_Crimson",
+    "hex": "#F28F9A",
+    "L": 70,
+    "a": 38.6,
+    "b": 10.4,
+    "C": 40,
+    "h": 15,
+    "file": "assets/stimuli/17_Red-Violet_Crimson.png"
+  }
+];
+let participant={}, idx=0, log=[], finalData={};
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function createScale(containerId,name){
+  const c=document.getElementById(containerId); c.innerHTML='';
+  for(let i=1;i<=9;i++){const label=document.createElement('label'); const input=document.createElement('input'); input.type='radio'; input.name=name; input.value=i; const span=document.createElement('span'); span.textContent=i; label.appendChild(input); label.appendChild(span); c.appendChild(label);}
+}
+createScale('valenceScale','valence'); createScale('arousalScale','arousal');
+function startQ(){
+  const participantCode=document.getElementById('participantCode').value.trim();
+  const protocolMode=document.getElementById('protocolMode').value;
+  if(!participantCode){alert('Please enter participant code.'); return;}
+  participant={participantCode, protocolMode};
+  idx=0; log=[]; showQuestion();
+}
+function showQuestion(){
+  const c=COLOURS[idx];
+  document.getElementById('progress').textContent = `Colour ${idx+1} of ${COLOURS.length}`;
+  document.getElementById('title').textContent = c.name;
+  document.getElementById('preview').style.background = c.hex;
+  document.getElementById('details').textContent = `CIELAB: L*=${c.L}, a*=${c.a}, b*=${c.b}, C*=${c.C}, h°=${c.h}`;
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  document.getElementById('emotionLabel').value='';
+  document.getElementById('confidenceRating').value='';
+  document.getElementById('comments').value='';
+  if(log[idx]){
+    const old=log[idx];
+    const v=document.querySelector(`input[name="valence"][value="${old.valence_1_to_9}"]`);
+    const a=document.querySelector(`input[name="arousal"][value="${old.arousal_1_to_9}"]`);
+    if(v) v.checked=true; if(a) a.checked=true;
+    document.getElementById('emotionLabel').value=old.emotion_label||'';
+    document.getElementById('confidenceRating').value=old.confidence_1_to_5||'';
+    document.getElementById('comments').value=old.comments||'';
+  }
+  show('question');
+}
+function getRadio(name){const s=document.querySelector(`input[name="${name}"]:checked`); return s?s.value:''}
+function saveCurrent(){
+  const valence=getRadio('valence'), arousal=getRadio('arousal');
+  const emotion=document.getElementById('emotionLabel').value;
+  const confidence=document.getElementById('confidenceRating').value;
+  const comments=document.getElementById('comments').value.trim();
+  if(!valence || !arousal || !emotion || !confidence){alert('Please complete valence, arousal, emotion label, and confidence.'); return false;}
+  const c=COLOURS[idx];
+  log[idx] = {
+    participant_code: participant.participantCode,
+    protocol_mode: participant.protocolMode,
+    rating_order_position: idx+1,
+    original_colour_no: c.no,
+    colour_name: c.name,
+    colour_hex: c.hex,
+    L_star: c.L, a_star: c.a, b_star: c.b, C_star_ab: c.C, hue_angle_deg: c.h,
+    valence_1_to_9: valence,
+    arousal_1_to_9: arousal,
+    emotion_label: emotion,
+    confidence_1_to_5: confidence,
+    comments: comments,
+    rating_iso_time: new Date().toISOString()
+  };
+  return true;
+}
+function saveAndNext(){if(!saveCurrent()) return; idx++; if(idx>=COLOURS.length){show('final')} else showQuestion();}
+function goBack(){if(idx>0){idx--; showQuestion();}}
+function finishQ(){
+  const fatigue=document.getElementById('fatigue').value;
+  const discomfort=document.getElementById('discomfort').value;
+  if(!fatigue || !discomfort){alert('Please complete fatigue and VR discomfort ratings.'); return;}
+  finalData={participant_code:participant.participantCode, protocol_mode:participant.protocolMode, overall_fatigue_1_to_5:fatigue, vr_discomfort_1_to_5:discomfort, overall_comments:document.getElementById('overallComments').value.trim(), final_iso_time:new Date().toISOString()};
+  show('end');
+}
+function escapeCSV(value){if(value===null || value===undefined) return ''; const str=String(value); if(/[",\n]/.test(str)) return '"' + str.replace(/"/g,'""') + '"'; return str;}
+function downloadCSV(){
+  const rows=[...log, {record_type:'final_questions', ...finalData}].map(r => r.record_type ? r : {record_type:'colour_rating', ...r});
+  const headers=Array.from(new Set(rows.flatMap(row=>Object.keys(row))));
+  const csv=[headers.join(','), ...rows.map(row=>headers.map(h=>escapeCSV(row[h])).join(','))].join('\n');
+  blob(csv, `${participant.participantCode}_post_experiment_questionnaire.csv`, 'text/csv');
+}
+function downloadJSON(){ blob(JSON.stringify({participant, colours:COLOURS, data_log:log, final_data:finalData}, null, 2), `${participant.participantCode}_post_experiment_questionnaire.json`, 'application/json');}
+function blob(content, filename, type){const b=new Blob([content],{type}); const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url;a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);}
+</script>
+</body>
+</html>

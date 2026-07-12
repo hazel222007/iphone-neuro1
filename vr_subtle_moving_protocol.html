@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover" />
+<title>NeuroColor Atlas - VR Subtle Moving Cue Colour Room Protocol</title>
+
+<!-- MODIFICATION: A-Frame added for immersive WebXR presentation. The experiment logic below remains plain JavaScript. -->
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;width:100%;height:100%;font-family:Arial,Helvetica,sans-serif;background:#f3f3f3;color:#111;overflow:hidden;-webkit-text-size-adjust:100%;touch-action:manipulation}
+  .screen{display:none;align-items:center;justify-content:center;width:100vw;height:100vh;height:100dvh;padding:16px;overflow:auto}
+  .screen.active{display:flex}
+  .panel{width:min(900px,96vw);max-height:94vh;max-height:94dvh;overflow:auto;background:rgba(255,255,255,.96);border:1px solid #ddd;border-radius:18px;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+  h1,h2,h3{margin-top:0}
+  p,li{line-height:1.55;font-size:16px}
+  .small{font-size:13px;color:#555}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:16px}
+  label{display:block;font-weight:600;margin-bottom:6px}
+  input,select{width:100%;padding:12px;border:1px solid #bbb;border-radius:10px;font-size:16px;background:white}
+  button{border:0;border-radius:12px;padding:12px 18px;font-size:16px;font-weight:700;cursor:pointer;background:#111;color:white;margin:6px 8px 6px 0}
+  button.secondary{background:#e8e8e8;color:#111;border:1px solid #ccc}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  th,td{border:1px solid #ddd;padding:8px;text-align:left}
+  th{background:#f1f1f1}
+  .fullfield{width:100vw;height:100vh;height:100dvh;overflow:hidden;padding:0;position:relative;background:#777}
+  #aframeLayer{position:absolute;inset:0;display:none;background:#777}
+  #cardboardLayer{position:absolute;inset:0;display:none;background:#777}
+  .eye{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;background:#777;display:flex;align-items:center;justify-content:center}
+  .eye.left{left:0;border-right:1px solid rgba(255,255,255,0.12)}
+  .eye.right{right:0}
+  .eye img{width:100%;height:100%;object-fit:cover;display:block}
+  .sbsCross{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font-size:32px;color:rgba(0,0,0,.62);z-index:4;user-select:none}
+  .sbsCue{position:absolute;left:50%;top:48%;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.24);display:none;transform:translate(-50%,-50%);z-index:3;pointer-events:none;opacity:.35}
+  .phaseText{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);transform:translateX(-50%);background:rgba(255,255,255,.74);padding:8px 14px;border-radius:999px;font-size:14px;z-index:10;max-width:92vw;text-align:center}
+  .topBar{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;background:rgba(255,255,255,.22);border-radius:12px;padding:8px 10px;font-size:13px;display:flex;justify-content:space-between;gap:10px;z-index:10}
+  .timer{display:none;font-variant-numeric:tabular-nums;font-weight:700}
+  .orderCode{font-family:Consolas,monospace;background:#f5f5f5;border:1px solid #ddd;border-radius:10px;padding:12px;word-break:break-all}
+  @media(max-width:720px){.grid{grid-template-columns:1fr} p,li{font-size:15px} .panel{padding:18px}}
+</style>
+</head>
+<body>
+
+<section id="setupScreen" class="screen active">
+  <div class="panel">
+    <h1>NeuroColor Atlas - VR Subtle Moving Cue Colour Room Protocol</h1>
+    <p>This VR-compatible protocol preserves the experiment flow and presents each existing stimulus image approximately 2 meters in front of the participant. It is intended for older adults/dementia participants to reduce boredom and maintain attention.</p>
+
+    <table>
+      <tr><th>Phase</th><th>Duration</th></tr>
+      <tr><td>Initial neutral grey baseline</td><td>90 seconds</td></tr>
+      <tr><td>Neutral grey baseline before each colour</td><td>30 seconds</td></tr>
+      <tr><td>Colour-room exposure</td><td>150 seconds</td></tr>
+      <tr><td>Rest breaks</td><td>None</td></tr>
+    </table>
+
+    <div class="grid">
+      <div><label for="participantCode">Participant code</label><input id="participantCode" placeholder="e.g., NC001" /></div>
+      <div><label for="age">Age</label><input id="age" type="number" min="1" max="120" placeholder="e.g., 68" /></div>
+      <div><label for="gender">Gender</label><select id="gender"><option value="">Select gender</option><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option></select></div>
+      <div><label for="healthConditions">Any health conditions (optional)</label><input id="healthConditions" placeholder="Leave blank if none" /></div>
+    </div>
+
+    <p class="small">
+      On Android/compatible browsers this will attempt immersive WebXR. On iPhone Safari it automatically uses stereoscopic side-by-side Cardboard mode for the Irusu Monster headset.
+      After pressing Start, the page attempts full-screen and landscape orientation.
+    </p>
+    <button onclick="startTask()">Start Experiment</button>
+  </div>
+</section>
+
+<section id="stimulusScreen" class="screen fullfield">
+  <!-- MODIFICATION: A-Frame presentation layer. Stimuli are rendered as a-image planes at z=-2. -->
+  <div id="aframeLayer">
+    <a-scene id="vrScene" embedded vr-mode-ui="enabled: true" renderer="antialias: true; colorManagement: true" background="color: #777777">
+      <a-assets>
+        <img id="assetStimulus" src="assets/stimuli/baseline_grey.png" crossorigin="anonymous">
+      </a-assets>
+      <a-entity id="rig" position="0 1.6 0">
+        <a-camera id="camera" wasd-controls-enabled="false" look-controls="enabled: true; magicWindowTrackingEnabled: true">
+          <a-cursor visible="false"></a-cursor>
+        </a-camera>
+      </a-entity>
+      <a-image id="vrStimulus" src="#assetStimulus" position="0 1.6 -2" width="3.56" height="2.00" material="shader: flat"></a-image>
+      <a-text id="vrCross" value="+" position="0 1.6 -1.98" align="center" color="#111111" width="0.6"></a-text>
+      
+      <!-- MODIFICATION: subtle same-colour cue converted from HTML circle into an A-Frame sphere and matching Cardboard overlay cue. -->
+      <a-sphere id="vrCue" radius="0.055" position="0.34 0.10 -1.985" color="#ffffff" opacity="0.35" visible="false"
+                material="transparent:true; opacity:0.35; depthWrite:false"></a-sphere>
+    
+      <a-sky color="#777777"></a-sky>
+    </a-scene>
+  </div>
+
+  <!-- MODIFICATION: iPhone/Irusu fallback. Same stimulus is duplicated left-right for Cardboard-style viewing. -->
+  <div id="cardboardLayer">
+    <div class="eye left">
+      <img id="sbsLeft" src="assets/stimuli/baseline_grey.png" alt="left eye stimulus">
+      <div class="sbsCross">+</div>
+      
+      <div id="sbsCueLeft" class="sbsCue"></div>
+      <div id="sbsCueRight" class="sbsCue"></div>
+    
+    </div>
+    <div class="eye right">
+      <img id="sbsRight" src="assets/stimuli/baseline_grey.png" alt="right eye stimulus">
+      <div class="sbsCross">+</div>
+    </div>
+  </div>
+
+  <div class="topBar">
+    <div id="trialInfo">Trial</div>
+    <div id="timerText" class="timer">00</div>
+  </div>
+  <div class="phaseText" id="phaseText">Please relax, stay still, and look at the centre.</div>
+</section>
+
+<section id="endScreen" class="screen">
+  <div class="panel">
+    <h2>Experiment Completed</h2>
+    <p>Please download the event file. Then use the separate post-experiment questionnaire file if needed.</p>
+    <button onclick="downloadCSV()">Download Event CSV</button>
+    <button class="secondary" onclick="downloadJSON()">Download Event JSON</button>
+    <button class="secondary" onclick="location.reload()">Start New Session</button>
+    <div id="summaryBox"></div>
+  </div>
+</section>
+
+<script>
+const CONFIG = {
+  initialBaselineSec: 90,
+  interTrialBaselineSec: 30,
+  stimulusSec: 150,
+  showTimerToParticipant: false,
+  orderMode: "fixed",
+  protocolMode: "moving",
+  presentationMode: "pending"
+};
+
+const STIMULI = [
+  {
+    "no": 1,
+    "name": "Red",
+    "hex": "#E09289",
+    "L": 70,
+    "a": 34.6,
+    "b": 20.0,
+    "C": 40,
+    "h": 30,
+    "file": "assets/stimuli/01_Red.png"
+  },
+  {
+    "no": 2,
+    "name": "Red-Orange",
+    "hex": "#E79875",
+    "L": 70,
+    "a": 25.7,
+    "b": 30.6,
+    "C": 40,
+    "h": 50,
+    "file": "assets/stimuli/02_Red-Orange.png"
+  },
+  {
+    "no": 3,
+    "name": "Orange",
+    "hex": "#D7A067",
+    "L": 70,
+    "a": 13.7,
+    "b": 37.6,
+    "C": 40,
+    "h": 70,
+    "file": "assets/stimuli/03_Orange.png"
+  },
+  {
+    "no": 4,
+    "name": "Yellow-Orange_Amber",
+    "hex": "#C8A762",
+    "L": 70,
+    "a": 3.5,
+    "b": 39.8,
+    "C": 40,
+    "h": 85,
+    "file": "assets/stimuli/04_Yellow-Orange_Amber.png"
+  },
+  {
+    "no": 5,
+    "name": "Yellow",
+    "hex": "#B7AD62",
+    "L": 70,
+    "a": -6.9,
+    "b": 39.4,
+    "C": 40,
+    "h": 100,
+    "file": "assets/stimuli/05_Yellow.png"
+  },
+  {
+    "no": 6,
+    "name": "Yellow-Green_Lime",
+    "hex": "#9DB46B",
+    "L": 70,
+    "a": -20.0,
+    "b": 34.6,
+    "C": 40,
+    "h": 120,
+    "file": "assets/stimuli/06_Yellow-Green_Lime.png"
+  },
+  {
+    "no": 7,
+    "name": "Green",
+    "hex": "#79BA80",
+    "L": 70,
+    "a": -32.8,
+    "b": 22.9,
+    "C": 40,
+    "h": 145,
+    "file": "assets/stimuli/07_Green.png"
+  },
+  {
+    "no": 8,
+    "name": "Blue-Green_Teal",
+    "hex": "#4EBE9D",
+    "L": 70,
+    "a": -39.4,
+    "b": 6.9,
+    "C": 40,
+    "h": 170,
+    "file": "assets/stimuli/08_Blue-Green_Teal.png"
+  },
+  {
+    "no": 9,
+    "name": "Cyan",
+    "hex": "#0FBFBD",
+    "L": 70,
+    "a": -38.6,
+    "b": -10.4,
+    "C": 40,
+    "h": 195,
+    "file": "assets/stimuli/09_Cyan.png"
+  },
+  {
+    "no": 10,
+    "name": "Turquoise",
+    "hex": "#00BCD9",
+    "L": 70,
+    "a": -30.6,
+    "b": -25.7,
+    "C": 40,
+    "h": 220,
+    "file": "assets/stimuli/10_Turquoise.png"
+  },
+  {
+    "no": 11,
+    "name": "Blue",
+    "hex": "#74AEF3",
+    "L": 70,
+    "a": 0.0,
+    "b": -40.0,
+    "C": 40,
+    "h": 270,
+    "file": "assets/stimuli/11_Blue.png"
+  },
+  {
+    "no": 12,
+    "name": "Blue-Violet_Indigo",
+    "hex": "#94A8F1",
+    "L": 70,
+    "a": 10.4,
+    "b": -38.6,
+    "C": 40,
+    "h": 285,
+    "file": "assets/stimuli/12_Blue-Violet_Indigo.png"
+  },
+  {
+    "no": 13,
+    "name": "Violet",
+    "hex": "#B79FE7",
+    "L": 70,
+    "a": 22.9,
+    "b": -32.8,
+    "C": 40,
+    "h": 305,
+    "file": "assets/stimuli/13_Violet.png"
+  },
+  {
+    "no": 14,
+    "name": "Purple",
+    "hex": "#CD99DA",
+    "L": 70,
+    "a": 30.6,
+    "b": -25.7,
+    "C": 40,
+    "h": 320,
+    "file": "assets/stimuli/14_Purple.png"
+  },
+  {
+    "no": 15,
+    "name": "Magenta",
+    "hex": "#DE93CA",
+    "L": 70,
+    "a": 36.3,
+    "b": -16.9,
+    "C": 40,
+    "h": 335,
+    "file": "assets/stimuli/15_Magenta.png"
+  },
+  {
+    "no": 16,
+    "name": "Pink_Rose",
+    "hex": "#EA90B9",
+    "L": 70,
+    "a": 39.4,
+    "b": -6.9,
+    "C": 40,
+    "h": 350,
+    "file": "assets/stimuli/16_Pink_Rose.png"
+  },
+  {
+    "no": 17,
+    "name": "Red-Violet_Crimson",
+    "hex": "#F28F9A",
+    "L": 70,
+    "a": 38.6,
+    "b": 10.4,
+    "C": 40,
+    "h": 15,
+    "file": "assets/stimuli/17_Red-Violet_Crimson.png"
+  }
+];
+const BASELINE_IMAGE = "assets/stimuli/baseline_grey.png";
+
+let participant = {};
+let trialOrder = [...STIMULI];
+let trialIndex = -1;
+let currentStimulus = null;
+let eventLog = [];
+let phaseStartPerf = 0;
+let taskStartISO = "";
+let timerHandle = null;
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+function nowISO(){return new Date().toISOString();}
+function nowPerf(){return Math.round(performance.now());}
+
+function hexToRgb(hex){
+  const h=hex.replace('#',''); const n=parseInt(h,16);
+  return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+}
+function mixHex(hex1,hex2,ratio){
+  const a=hexToRgb(hex1), b=hexToRgb(hex2);
+  const r=Math.round(a.r*(1-ratio)+b.r*ratio);
+  const g=Math.round(a.g*(1-ratio)+b.g*ratio);
+  const bb=Math.round(a.b*(1-ratio)+b.b*ratio);
+  return '#' + [r,g,bb].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function hexToRgba(hex,alpha){
+  const c=hexToRgb(hex);
+  return `rgba(${c.r},${c.g},${c.b},${alpha})`;
+}
+
+
+let cueHandle = null;
+let cueState = {x:0.34, y:0.10, dx:0.00036, dy:0.00024, t0:0};
+
+function setCueColour(hex){
+  // MODIFICATION: existing subtle moving cue is preserved, but rendered in both A-Frame and Cardboard fallback layers.
+  const vrCue = document.getElementById("vrCue");
+  const c1 = mixHex(hex, "#ffffff", 0.14);
+  if(vrCue){
+    vrCue.setAttribute("visible", "true");
+    vrCue.setAttribute("color", c1);
+    vrCue.setAttribute("material", "transparent:true; opacity:0.36; depthWrite:false");
+  }
+  ["sbsCueLeft","sbsCueRight"].forEach(id=>{
+    const cue=document.getElementById(id);
+    if(cue){
+      cue.style.display="block";
+      cue.style.background=hexToRgba(c1,0.36);
+      cue.style.borderColor=hexToRgba(mixHex(hex,"#ffffff",0.25),0.55);
+    }
+  });
+}
+
+function stopCue(){
+  if(cueHandle) cancelAnimationFrame(cueHandle);
+  cueHandle = null;
+  const vrCue = document.getElementById("vrCue");
+  if(vrCue) vrCue.setAttribute("visible", "false");
+  ["sbsCueLeft","sbsCueRight"].forEach(id=>{
+    const cue=document.getElementById(id);
+    if(cue) cue.style.display="none";
+  });
+}
+
+function startCue(){
+  stopCue();
+  const vrCue = document.getElementById("vrCue");
+  const cueLeft = document.getElementById("sbsCueLeft");
+  const cueRight = document.getElementById("sbsCueRight");
+  if(vrCue) vrCue.setAttribute("visible", "true");
+  if(cueLeft) cueLeft.style.display="block";
+  if(cueRight) cueRight.style.display="block";
+  cueState.t0 = performance.now();
+
+  const animate = (ts)=>{
+    const elapsed = (ts - cueState.t0)/1000;
+
+    cueState.x += cueState.dx;
+    cueState.y += cueState.dy;
+
+    if(cueState.x < -0.34 || cueState.x > 0.42) cueState.dx *= -1;
+    if(cueState.y < -0.15 || cueState.y > 0.28) cueState.dy *= -1;
+
+    const microX = 0.025 * Math.sin(elapsed * 0.28);
+    const microY = 0.018 * Math.cos(elapsed * 0.22);
+    const radius = 0.055 + 0.012 * Math.sin(elapsed * 0.09 * 2 * Math.PI);
+    const opacity = 0.30 + 0.08 * (0.5 + 0.5 * Math.sin(elapsed * 0.18 * 2 * Math.PI));
+
+    if(vrCue){
+      vrCue.setAttribute("position", `${cueState.x + microX} ${cueState.y + microY} -1.985`);
+      vrCue.setAttribute("radius", Math.max(0.035, radius));
+      vrCue.setAttribute("material", `transparent:true; opacity:${opacity}; depthWrite:false`);
+    }
+
+    // Cardboard fallback: keep both eyes synchronized and slightly offset by CSS placement.
+    const xPct = 50 + (cueState.x + microX) * 34;
+    const yPct = 48 - (cueState.y + microY) * 34;
+    const sizePx = 56 + 12 * Math.sin(elapsed * 0.09 * 2 * Math.PI);
+    [cueLeft, cueRight].forEach(cue=>{
+      if(cue){
+        cue.style.left = xPct + "%";
+        cue.style.top = yPct + "%";
+        cue.style.width = sizePx + "px";
+        cue.style.height = sizePx + "px";
+        cue.style.opacity = opacity;
+      }
+    });
+
+    cueHandle = requestAnimationFrame(animate);
+  };
+  cueHandle = requestAnimationFrame(animate);
+}
+
+
+function logEvent(eventType, extra={}){
+  eventLog.push({
+    participant_code: participant.participantCode || "",
+    age: participant.age || "",
+    gender: participant.gender || "",
+    health_conditions: participant.healthConditions || "None",
+    protocol_mode: CONFIG.protocolMode,
+    presentation_mode: CONFIG.presentationMode,
+    event_type: eventType,
+    trial_number: trialIndex + 1,
+    colour_no: currentStimulus ? currentStimulus.no : "",
+    colour_name: currentStimulus ? currentStimulus.name : "",
+    colour_hex: currentStimulus ? currentStimulus.hex : "",
+    L_star: currentStimulus ? currentStimulus.L : "",
+    a_star: currentStimulus ? currentStimulus.a : "",
+    b_star: currentStimulus ? currentStimulus.b : "",
+    C_star_ab: currentStimulus ? currentStimulus.C : "",
+    hue_angle_deg: currentStimulus ? currentStimulus.h : "",
+    iso_time: nowISO(),
+    perf_ms: nowPerf(),
+    ...extra
+  });
+}
+
+// MODIFICATION: presentation selection only. Experiment timing and trial logic below remain unchanged.
+async function choosePresentationMode(){
+  const aframeLayer = document.getElementById("aframeLayer");
+  const cardboardLayer = document.getElementById("cardboardLayer");
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  let immersiveSupported = false;
+
+  try {
+    if(navigator.xr && navigator.xr.isSessionSupported){
+      immersiveSupported = await navigator.xr.isSessionSupported("immersive-vr");
+    }
+  } catch(e) {
+    immersiveSupported = false;
+  }
+
+  if(immersiveSupported && !isIOS){
+    CONFIG.presentationMode = "webxr_aframe";
+    aframeLayer.style.display = "block";
+    cardboardLayer.style.display = "none";
+    const scene = document.getElementById("vrScene");
+    // Enter VR during the user's Start button gesture when browser allows it.
+    setTimeout(()=>{
+      try {
+        if(scene && scene.enterVR) scene.enterVR();
+      } catch(e) {}
+    }, 300);
+  } else {
+    CONFIG.presentationMode = "iphone_cardboard_sbs";
+    aframeLayer.style.display = "none";
+    cardboardLayer.style.display = "block";
+  }
+}
+
+function setStimulusImage(src){
+  // MODIFICATION: existing image stimulus is routed into A-Frame a-image and Cardboard twin images.
+  const asset = document.getElementById("assetStimulus");
+  const vrStimulus = document.getElementById("vrStimulus");
+  const left = document.getElementById("sbsLeft");
+  const right = document.getElementById("sbsRight");
+
+  if(asset) asset.setAttribute("src", src);
+  if(vrStimulus) {
+    vrStimulus.setAttribute("src", src);
+    // A-Frame texture refresh safeguard.
+    vrStimulus.components && vrStimulus.components.material && vrStimulus.components.material.material.map && (vrStimulus.components.material.material.map.needsUpdate = true);
+  }
+  if(left) left.src = src;
+  if(right) right.src = src;
+}
+
+async function startTask(){
+  const participantCode = document.getElementById("participantCode").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const gender = document.getElementById("gender").value;
+  const healthConditions = document.getElementById("healthConditions").value.trim() || "None";
+
+  if(!participantCode || !age || !gender){
+    alert("Please enter participant code, age, and gender.");
+    return;
+  }
+
+  participant = {
+    participantCode, age, gender, healthConditions,
+    userAgent: navigator.userAgent,
+    taskVersion: "NeuroColorAtlas_VR_moving_WebXR_Cardboard_iPhone16ProMax_v1"
+  };
+
+  if(document.documentElement.requestFullscreen){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }
+  if(screen.orientation && screen.orientation.lock){
+    screen.orientation.lock("landscape").catch(()=>{});
+  }
+
+  showScreen("stimulusScreen");
+  await choosePresentationMode();
+
+  taskStartISO = nowISO();
+  trialIndex = -1;
+  logEvent("task_started", {
+    task_start_iso: taskStartISO,
+    initial_baseline_sec: CONFIG.initialBaselineSec,
+    intertrial_baseline_sec: CONFIG.interTrialBaselineSec,
+    stimulus_sec: CONFIG.stimulusSec,
+    baseline_image: BASELINE_IMAGE
+  });
+
+  runTimedPhase({
+    phase: "initial_baseline",
+    durationSec: CONFIG.initialBaselineSec,
+    imageSrc: BASELINE_IMAGE,
+    trialText: "Initial neutral grey baseline",
+    phaseText: "Please relax, stay still, and look at the centre.",
+    onDone: nextTrial
+  });
+}
+
+function runTimedPhase({phase,durationSec,imageSrc,trialText,phaseText,onDone}){
+  clearInterval(timerHandle);
+  setStimulusImage(imageSrc);
+  document.getElementById("trialInfo").textContent = trialText;
+  document.getElementById("phaseText").textContent = phaseText;
+  document.getElementById("timerText").style.display = CONFIG.showTimerToParticipant ? "block" : "none";
+
+  if(phase === "colour_room_exposure" && currentStimulus){
+    setCueColour(currentStimulus.hex);
+    startCue();
+  } else {
+    stopCue();
+  }
+
+  phaseStartPerf = performance.now();
+  logEvent(phase + "_onset", {phase_duration_sec: durationSec, image_src: imageSrc});
+
+  // Preserved timing method: performance.now() is used for elapsed-time control and RT/event timestamping.
+  timerHandle = setInterval(()=>{
+    const elapsed = (performance.now() - phaseStartPerf)/1000;
+    const remaining = Math.max(0, Math.ceil(durationSec - elapsed));
+    document.getElementById("timerText").textContent = String(remaining).padStart(3,"0");
+    if(elapsed >= durationSec){
+      clearInterval(timerHandle);
+      stopCue();
+      logEvent(phase + "_offset", {actual_duration_ms: Math.round(performance.now() - phaseStartPerf)});
+      onDone();
+    }
+  },100);
+}
+
+function nextTrial(){
+  trialIndex++;
+  if(trialIndex >= trialOrder.length){
+    finishTask();
+    return;
+  }
+  currentStimulus = trialOrder[trialIndex];
+  runTimedPhase({
+    phase: "pre_colour_neutral_grey_baseline",
+    durationSec: CONFIG.interTrialBaselineSec,
+    imageSrc: BASELINE_IMAGE,
+    trialText: `Neutral grey baseline before colour ${trialIndex + 1} of ${trialOrder.length}`,
+    phaseText: "Please relax and look at the centre.",
+    onDone: showColour
+  });
+}
+
+function showColour(){
+  runTimedPhase({
+    phase: "colour_room_exposure",
+    durationSec: CONFIG.stimulusSec,
+    imageSrc: currentStimulus.file,
+    trialText: `Colour room ${trialIndex + 1} of ${trialOrder.length}`,
+    phaseText: "Look at the centre. Please remain still.",
+    onDone: nextTrial
+  });
+}
+
+function finishTask(){
+  stopCue();
+  clearInterval(timerHandle);
+  logEvent("task_finished_complete");
+  showScreen("endScreen");
+  document.getElementById("summaryBox").innerHTML = `
+    <h3>Session Summary</h3>
+    <p><strong>Participant:</strong> ${participant.participantCode || ""}</p>
+    <p><strong>Age:</strong> ${participant.age || ""}</p>
+    <p><strong>Gender:</strong> ${participant.gender || ""}</p>
+    <p><strong>Health conditions:</strong> ${participant.healthConditions || "None"}</p>
+    <p><strong>Protocol:</strong> ${CONFIG.protocolMode}</p>
+    <p><strong>Presentation mode:</strong> ${CONFIG.presentationMode}</p>
+    <p><strong>Colours completed:</strong> ${trialOrder.length} / ${trialOrder.length}</p>
+  `;
+}
+
+function escapeCSV(value){
+  if(value === null || value === undefined) return "";
+  const str=String(value);
+  if(/[",\n]/.test(str)) return '"' + str.replace(/"/g,'""') + '"';
+  return str;
+}
+function downloadCSV(){
+  const headers = Array.from(new Set(eventLog.flatMap(row => Object.keys(row))));
+  const csv = [headers.join(","), ...eventLog.map(row => headers.map(h => escapeCSV(row[h])).join(","))].join("\n");
+  const filename = `${participant.participantCode || "participant"}_${CONFIG.protocolMode}_vr_events.csv`;
+  downloadBlob(csv, filename, "text/csv");
+}
+function downloadJSON(){
+  const payload = {participant, config: CONFIG, stimuli: trialOrder, event_log: eventLog};
+  const filename = `${participant.participantCode || "participant"}_${CONFIG.protocolMode}_vr_events.json`;
+  downloadBlob(JSON.stringify(payload, null, 2), filename, "application/json");
+}
+function downloadBlob(content, filename, type){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
