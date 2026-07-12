@@ -58,3 +58,14 @@ The VR files were tuned for iPhone 16 Pro Max inside the Irusu Monster headset:
 Use the phone in landscape orientation inside the headset. If a phone screenshot appears vertically stacked, that is the rotated screenshot view of the same two-eye layout.
 
 The subtle moving cue now appears during both neutral grey baseline and colour exposure.
+
+
+## Irusu Monster optical profile update
+
+The VR files were retuned using the headset specifications provided:
+- 42 mm HD lenses
+- 110° field of view
+- iPhone 16 Pro Max display
+- phone must be used in landscape mode inside the headset
+
+The Cardboard fallback now uses a fixed landscape side-by-side view with lens-style rounded vignettes and wider image fill. It does not stack the views in portrait; instead it asks the user to rotate the phone.

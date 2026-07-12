@@ -82,3 +82,21 @@ Changes made:
 - Top and bottom text overlays are reduced so they do not distract from the room stimulus.
 - In `vr_subtle_moving_protocol.html`, the subtle cue is now visible during the neutral grey baseline also.
 - The cue was slowed and reduced in opacity so it remains gentle but detectable in the headset.
+
+
+## Irusu Monster 42 mm / 110° FOV tuning
+
+The latest VR HTML files were tuned for the user-provided Irusu Monster headset details:
+- 42 mm HD lenses
+- 110° FOV
+- iPhone 16 Pro Max display
+
+Presentation changes:
+- fixed landscape side-by-side Cardboard layout
+- no portrait stacking during actual experiment
+- rotate-phone message if opened in portrait
+- 112% image fill per eye to better match lens coverage
+- rounded lens vignette to approximate headset optics
+- mild left/right crop offset for pseudo-stereo depth
+- fixation marker changed to a small white dot
+- subtle moving cue remains present during grey baseline and colour exposure in the moving protocol

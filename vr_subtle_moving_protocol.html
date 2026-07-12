@@ -28,34 +28,71 @@
   .fullfield{width:100vw;height:100vh;height:100dvh;overflow:hidden;padding:0;position:relative;background:#777}
   #aframeLayer{position:absolute;inset:0;display:none;background:#777}
   #cardboardLayer{position:absolute;inset:0;display:none;background:#000;overflow:hidden}
-  /* MODIFICATION: tuned for iPhone 16 Pro Max inside Irusu Monster.
-     In actual headset use, rotate the phone to landscape: the two eyes appear side-by-side.
-     If a screenshot looks vertically stacked, that is the rotated screenshot representation. */
-  .eye{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
-  .eye.left{left:0;border-right:2px solid rgba(0,0,0,0.85)}
+  /* IRUSU MONSTER PROFILE
+     Brand/specs used: 42 mm HD lenses, 110° FOV, phone-based headset, iPhone 16 Pro Max.
+     The actual headset view MUST be landscape side-by-side.
+     The experiment does not stack views in portrait; portrait users are asked to rotate. */
+  .eye{
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:50%;
+    overflow:hidden;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .eye.left{left:0;border-right:2px solid rgba(0,0,0,0.92)}
   .eye.right{right:0}
-  .eye::after{
-    content:"";position:absolute;inset:0;border-radius:12% / 9%;
-    box-shadow:inset 0 0 34px 18px rgba(0,0,0,0.78);
-    pointer-events:none;z-index:6;
+  .eye::before{
+    content:"";
+    position:absolute;
+    inset:2.3% 3.2%;
+    border-radius:13% / 10%;
+    background:transparent;
+    pointer-events:none;
+    z-index:6;
+    box-shadow:
+      inset 0 0 22px 8px rgba(0,0,0,0.38),
+      inset 0 0 52px 22px rgba(0,0,0,0.82);
   }
   .eye img{
-    width:108%;height:108%;object-fit:cover;display:block;
-    filter:contrast(1.02) saturate(1.02);transform:translateZ(0);
+    width:112%;
+    height:112%;
+    object-fit:cover;
+    display:block;
+    filter:contrast(1.03) saturate(1.02);
+    transform:translateZ(0);
   }
-  /* MODIFICATION: mild pseudo-stereo by opposite crop offsets to give a stronger room-depth feeling. */
-  .eye.left img{object-position:47.5% 50%}
-  .eye.right img{object-position:52.5% 50%}
+  /* Mild pseudo-stereo crop offset: gives depth but keeps the exact stimulus content unchanged. */
+  .eye.left img{object-position:46.8% 50%}
+  .eye.right img{object-position:53.2% 50%}
+
+  /* Phone must be landscape inside Irusu Monster. Do not stack or rotate the stimulus automatically. */
   @media (orientation: portrait){
-    .eye{left:0!important;right:auto!important;width:100%;height:50%;bottom:auto}
-    .eye.left{top:0;border-right:0;border-bottom:2px solid rgba(0,0,0,0.85)}
-    .eye.right{top:50%}
-    .eye img{width:108%;height:108%}
+    #cardboardLayer::after{
+      content:"Rotate phone to landscape before placing it inside the Irusu Monster headset.";
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:82vw;
+      padding:14px 18px;
+      border-radius:14px;
+      background:rgba(255,255,255,0.92);
+      color:#111;
+      text-align:center;
+      font-size:16px;
+      line-height:1.4;
+      z-index:20;
+    }
+    .eye{opacity:0.18}
   }
-  .sbsCross{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font-size:26px;color:rgba(0,0,0,.55);z-index:7;user-select:none}
-  .sbsCue{position:absolute;left:50%;top:48%;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);display:none;transform:translate(-50%,-50%);z-index:5;pointer-events:none;opacity:.26;box-shadow:0 0 8px rgba(255,255,255,.06)}
-  .phaseText{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);transform:translateX(-50%);background:rgba(255,255,255,.58);padding:6px 12px;border-radius:999px;font-size:12px;z-index:10;max-width:88vw;text-align:center}
-  .topBar{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:10px;right:10px;background:rgba(255,255,255,.12);border-radius:12px;padding:6px 9px;font-size:11px;display:flex;justify-content:space-between;gap:10px;z-index:10}
+  .sbsCross{position:absolute;left:50%;top:48.5%;transform:translate(-50%,-50%);font-size:18px;line-height:1;color:rgba(255,255,255,.92);z-index:7;user-select:none;text-shadow:0 0 4px rgba(0,0,0,.35)}
+  .sbsCue{position:absolute;left:50%;top:48.5%;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);display:none;transform:translate(-50%,-50%);z-index:5;pointer-events:none;opacity:.22;box-shadow:0 0 6px rgba(255,255,255,.05)}
+  .phaseText{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);transform:translateX(-50%);background:rgba(255,255,255,.42);padding:5px 10px;border-radius:999px;font-size:11px;z-index:10;max-width:88vw;text-align:center}
+  .topBar{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:10px;right:10px;background:rgba(255,255,255,.08);border-radius:12px;padding:5px 8px;font-size:10px;display:flex;justify-content:space-between;gap:10px;z-index:10}
   .timer{display:none;font-variant-numeric:tabular-nums;font-weight:700}
   .orderCode{font-family:Consolas,monospace;background:#f5f5f5;border:1px solid #ddd;border-radius:10px;padding:12px;word-break:break-all}
   @media(max-width:720px){.grid{grid-template-columns:1fr} p,li{font-size:15px} .panel{padding:18px}}
@@ -84,7 +121,7 @@
     </div>
 
     <p class="small">
-      On Android/compatible browsers this will attempt immersive WebXR. On iPhone Safari it automatically uses stereoscopic side-by-side Cardboard mode for the Irusu Monster headset. This layout is tuned for iPhone 16 Pro Max landscape viewing; if an iOS screenshot appears vertically stacked, it is the rotated screenshot representation.
+      On Android/compatible browsers this will attempt immersive WebXR. On iPhone Safari it automatically uses stereoscopic side-by-side Cardboard mode for the Irusu Monster headset. This layout is tuned for iPhone 16 Pro Max + Irusu Monster: landscape side-by-side, 42 mm lenses, and 110° field-of-view approximation.
       After pressing Start, the page attempts full-screen and landscape orientation.
     </p>
     <button onclick="startTask()">Start Experiment</button>
@@ -103,8 +140,8 @@
           <a-cursor visible="false"></a-cursor>
         </a-camera>
       </a-entity>
-      <a-image id="vrStimulus" src="#assetStimulus" position="0 1.6 -2" width="3.56" height="2.00" material="shader: flat"></a-image>
-      <a-text id="vrCross" value="+" position="0 1.6 -1.98" align="center" color="#111111" width="0.6"></a-text>
+      <a-image id="vrStimulus" src="#assetStimulus" position="0 1.6 -2" width="4.20" height="2.36" material="shader: flat"></a-image>
+      <a-text id="vrCross" value="•" position="0 1.6 -1.98" align="center" color="#ffffff" width="0.16"></a-text>
       
       <!-- MODIFICATION: subtle same-colour cue converted from HTML circle into an A-Frame sphere and matching Cardboard overlay cue. -->
       <a-sphere id="vrCue" radius="0.055" position="0.34 0.10 -1.985" color="#ffffff" opacity="0.35" visible="false"
@@ -118,7 +155,7 @@
   <div id="cardboardLayer">
     <div class="eye left">
       <img id="sbsLeft" src="assets/stimuli/baseline_grey.png" alt="left eye stimulus">
-      <div class="sbsCross">+</div>
+      <div class="sbsCross">•</div>
       
       <div id="sbsCueLeft" class="sbsCue"></div>
       <div id="sbsCueRight" class="sbsCue"></div>
@@ -126,7 +163,7 @@
     </div>
     <div class="eye right">
       <img id="sbsRight" src="assets/stimuli/baseline_grey.png" alt="right eye stimulus">
-      <div class="sbsCross">+</div>
+      <div class="sbsCross">•</div>
       <div id="sbsCueRight" class="sbsCue"></div>
     </div>
   </div>
@@ -385,7 +422,7 @@ function hexToRgba(hex,alpha){
 
 
 let cueHandle = null;
-let cueState = {x:0.22, y:0.06, dx:0.00018, dy:0.00012, t0:0};
+let cueState = {x:0.18, y:0.05, dx:0.00013, dy:0.00009, t0:0};
 
 function setCueColour(hex){
   // MODIFICATION: existing subtle moving cue is preserved, but rendered in both A-Frame and Cardboard fallback layers.
@@ -433,13 +470,13 @@ function startCue(){
     cueState.x += cueState.dx;
     cueState.y += cueState.dy;
 
-    if(cueState.x < -0.26 || cueState.x > 0.30) cueState.dx *= -1;
-    if(cueState.y < -0.10 || cueState.y > 0.20) cueState.dy *= -1;
+    if(cueState.x < -0.20 || cueState.x > 0.24) cueState.dx *= -1;
+    if(cueState.y < -0.08 || cueState.y > 0.16) cueState.dy *= -1;
 
-    const microX = 0.014 * Math.sin(elapsed * 0.20);
-    const microY = 0.010 * Math.cos(elapsed * 0.18);
-    const radius = 0.042 + 0.006 * Math.sin(elapsed * 0.055 * 2 * Math.PI);
-    const opacity = 0.20 + 0.05 * (0.5 + 0.5 * Math.sin(elapsed * 0.10 * 2 * Math.PI));
+    const microX = 0.010 * Math.sin(elapsed * 0.18);
+    const microY = 0.008 * Math.cos(elapsed * 0.16);
+    const radius = 0.034 + 0.004 * Math.sin(elapsed * 0.045 * 2 * Math.PI);
+    const opacity = 0.18 + 0.04 * (0.5 + 0.5 * Math.sin(elapsed * 0.08 * 2 * Math.PI));
 
     if(vrCue){
       vrCue.setAttribute("position", `${cueState.x + microX} ${cueState.y + microY} -1.985`);
@@ -448,9 +485,9 @@ function startCue(){
     }
 
     // Cardboard fallback: keep both eyes synchronized and slightly offset by CSS placement.
-    const xPct = 50 + (cueState.x + microX) * 30;
-    const yPct = 48 - (cueState.y + microY) * 30;
-    const sizePx = 42 + 6 * Math.sin(elapsed * 0.055 * 2 * Math.PI);
+    const xPct = 50 + (cueState.x + microX) * 26;
+    const yPct = 48.5 - (cueState.y + microY) * 26;
+    const sizePx = 34 + 4 * Math.sin(elapsed * 0.045 * 2 * Math.PI);
     [cueLeft, cueRight].forEach(cue=>{
       if(cue){
         cue.style.left = xPct + "%";
