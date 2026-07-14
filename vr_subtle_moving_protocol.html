@@ -189,11 +189,12 @@ function startCue(hex){
   cueStartPerf=performance.now();
   const animate=ts=>{
     const t=(ts-cueStartPerf)/1000;
-    // Very subtle synchronized movement within each eye.
-    const dx=0.55*Math.sin((2*Math.PI*t)/31)+0.16*Math.sin((2*Math.PI*t)/13);
-    const dy=0.34*Math.cos((2*Math.PI*t)/37)+0.10*Math.sin((2*Math.PI*t)/17);
-    const scale=1+0.035*Math.sin((2*Math.PI*t)/23);
-    const opacity=.31+.035*(.5+.5*Math.sin((2*Math.PI*t)/29));
+    // Ultra-subtle, slow drift. The same displacement is applied to both eye views
+    // to avoid binocular disparity or a distracting apparent depth change.
+    const dx=0.18*Math.sin((2*Math.PI*t)/53)+0.05*Math.sin((2*Math.PI*t)/31);
+    const dy=0.08*Math.cos((2*Math.PI*t)/61)+0.03*Math.sin((2*Math.PI*t)/37);
+    const scale=1+0.008*Math.sin((2*Math.PI*t)/47);
+    const opacity=.325+.008*Math.sin((2*Math.PI*t)/59);
     ['cueLeft','cueRight'].forEach(id=>{
       const el=$(id);
       el.style.transform=`translate(calc(-50% + ${dx}vw),calc(-50% + ${dy}vh)) scale(${scale})`;
@@ -221,7 +222,7 @@ function startTask(){
   const gender=$('gender').value;
   const healthConditions=$('healthConditions').value.trim()||'None';
   if(!participantCode||!age||!gender){alert('Please enter participant code, age, and gender.');return}
-  participant={participantCode,age,gender,healthConditions,userAgent:navigator.userAgent,taskVersion:'NeuroColorAtlas_iPhone_SBS_CIELAB17_v3'};
+  participant={participantCode,age,gender,healthConditions,userAgent:navigator.userAgent,taskVersion:'NeuroColorAtlas_iPhone_SBS_CIELAB17_v4_ultrasubtle'};
   trialIndex=-1;currentStimulus=null;eventLog=[];
   showScreen('stimulusScreen');
   requestExperimentFullscreen();
