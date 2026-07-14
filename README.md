@@ -13,7 +13,7 @@ The protocol contains:
 - 90-second initial baseline;
 - 30-second baseline before every condition;
 - 150-second room exposure;
-- an ultra-subtle, slow and synchronized moving bubble in both eye views during baseline and colour exposure;
+- a very subtle, synchronized moving bubble in both eye views during baseline and colour exposure;
 - fullscreen, landscape-orientation, and screen-wake-lock requests where supported;
 - CSV and JSON event logging.
 
@@ -30,7 +30,3 @@ The 12 chromatic conditions use L*=60 and approximately C*=35. The five achromat
 ## Notes
 
 The static bubble present in the supplied reference was removed from the stimulus assets. The experiment draws the bubble separately, allowing identical subtle movement in both eye views. The active experimental file is `vr_subtle_moving_protocol.html`.
-
-
-## Bubble movement update (v4)
-The cue now drifts only a few pixels over long cycles, with minimal size and opacity variation. Both eye views use exactly the same motion signal to preserve comfortable binocular fusion.

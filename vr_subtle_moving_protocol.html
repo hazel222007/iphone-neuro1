@@ -190,15 +190,15 @@ function startCue(hex){
   const animate=ts=>{
     const t=(ts-cueStartPerf)/1000;
     const frame=$('stereoFrame').getBoundingClientRect();
-    // Use pixel-based motion so the cue visibly moves even on iPhone CSS pixel viewports.
-    // The motion remains subtle, synchronized between the two eye views, and slow enough
-    // to avoid distraction or binocular discomfort.
-    const ampX=Math.max(4,frame.width*0.0045);
-    const ampY=Math.max(1.6,frame.height*0.0022);
-    const dx=(ampX*Math.sin((2*Math.PI*t)/8.0))+(ampX*0.35*Math.sin((2*Math.PI*t)/4.9));
-    const dy=(ampY*Math.cos((2*Math.PI*t)/9.5))+(ampY*0.30*Math.sin((2*Math.PI*t)/6.1));
-    const scale=1+0.012*Math.sin((2*Math.PI*t)/7.2);
-    const opacity=.34+.022*Math.sin((2*Math.PI*t)/8.8);
+    // Move the overlaid circular cue inside each picture with subtle but visible motion.
+    // Pixel-based movement is used so that it remains visible on iPhone screens.
+    // The same motion is applied to both eye views to preserve comfortable VR fusion.
+    const ampX=Math.max(5.5,frame.width*0.0052);
+    const ampY=Math.max(2.2,frame.height*0.0028);
+    const dx=(ampX*Math.sin((2*Math.PI*t)/8.5))+(ampX*0.28*Math.sin((2*Math.PI*t)/5.4));
+    const dy=(ampY*Math.cos((2*Math.PI*t)/10.3))+(ampY*0.24*Math.sin((2*Math.PI*t)/6.7));
+    const scale=1+0.018*Math.sin((2*Math.PI*t)/7.9);
+    const opacity=.34+.020*Math.sin((2*Math.PI*t)/9.1);
     ['cueLeft','cueRight'].forEach(id=>{
       const el=$(id);
       el.style.transform=`translate(-50%,-50%) translate(${dx.toFixed(2)}px,${dy.toFixed(2)}px) scale(${scale.toFixed(3)})`;
@@ -226,7 +226,7 @@ function startTask(){
   const gender=$('gender').value;
   const healthConditions=$('healthConditions').value.trim()||'None';
   if(!participantCode||!age||!gender){alert('Please enter participant code, age, and gender.');return}
-  participant={participantCode,age,gender,healthConditions,userAgent:navigator.userAgent,taskVersion:'NeuroColorAtlas_iPhone_SBS_CIELAB17_v5_visible_subtle_bubble'};
+  participant={participantCode,age,gender,healthConditions,userAgent:navigator.userAgent,taskVersion:'NeuroColorAtlas_iPhone_SBS_CIELAB17_v3'};
   trialIndex=-1;currentStimulus=null;eventLog=[];
   showScreen('stimulusScreen');
   requestExperimentFullscreen();
@@ -265,7 +265,7 @@ async function finishTask(){
   stopCue();clearInterval(timerHandle);logEvent('task_finished_complete');await releaseWakeLock();
   try{if(document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen();else if(document.webkitFullscreenElement&&document.webkitExitFullscreen)document.webkitExitFullscreen()}catch(_e){}
   showScreen('endScreen');
-  $('summaryBox').innerHTML=`<h3>Session Summary</h3><p><strong>Participant:</strong> ${participant.participantCode}</p><p><strong>Conditions completed:</strong> ${trialOrder.length} / ${trialOrder.length}</p><p><strong>Protocol:</strong> stereoscopic iPhone VR with subtle moving cue</p>`;
+  $('summaryBox').innerHTML=`<h3>Session Summary</h3><p><strong>Participant:</strong> ${participant.participantCode}</p><p><strong>Conditions completed:</strong> ${trialOrder.length} / ${trialOrder.length}</p><p><strong>Protocol:</strong> stereoscopic iPhone VR with subtle moving circle cue</p>`;
 }
 
 function escapeCSV(value){if(value===null||value===undefined)return'';const str=String(value);return/[",\n]/.test(str)?'"'+str.replace(/"/g,'""')+'"':str}
