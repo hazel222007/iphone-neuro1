@@ -189,15 +189,19 @@ function startCue(hex){
   cueStartPerf=performance.now();
   const animate=ts=>{
     const t=(ts-cueStartPerf)/1000;
-    // Ultra-subtle, slow drift. The same displacement is applied to both eye views
-    // to avoid binocular disparity or a distracting apparent depth change.
-    const dx=0.18*Math.sin((2*Math.PI*t)/53)+0.05*Math.sin((2*Math.PI*t)/31);
-    const dy=0.08*Math.cos((2*Math.PI*t)/61)+0.03*Math.sin((2*Math.PI*t)/37);
-    const scale=1+0.008*Math.sin((2*Math.PI*t)/47);
-    const opacity=.325+.008*Math.sin((2*Math.PI*t)/59);
+    const frame=$('stereoFrame').getBoundingClientRect();
+    // Use pixel-based motion so the cue visibly moves even on iPhone CSS pixel viewports.
+    // The motion remains subtle, synchronized between the two eye views, and slow enough
+    // to avoid distraction or binocular discomfort.
+    const ampX=Math.max(4,frame.width*0.0045);
+    const ampY=Math.max(1.6,frame.height*0.0022);
+    const dx=(ampX*Math.sin((2*Math.PI*t)/8.0))+(ampX*0.35*Math.sin((2*Math.PI*t)/4.9));
+    const dy=(ampY*Math.cos((2*Math.PI*t)/9.5))+(ampY*0.30*Math.sin((2*Math.PI*t)/6.1));
+    const scale=1+0.012*Math.sin((2*Math.PI*t)/7.2);
+    const opacity=.34+.022*Math.sin((2*Math.PI*t)/8.8);
     ['cueLeft','cueRight'].forEach(id=>{
       const el=$(id);
-      el.style.transform=`translate(calc(-50% + ${dx}vw),calc(-50% + ${dy}vh)) scale(${scale})`;
+      el.style.transform=`translate(-50%,-50%) translate(${dx.toFixed(2)}px,${dy.toFixed(2)}px) scale(${scale.toFixed(3)})`;
       el.style.opacity=opacity.toFixed(3);
     });
     cueHandle=requestAnimationFrame(animate);
@@ -222,7 +226,7 @@ function startTask(){
   const gender=$('gender').value;
   const healthConditions=$('healthConditions').value.trim()||'None';
   if(!participantCode||!age||!gender){alert('Please enter participant code, age, and gender.');return}
-  participant={participantCode,age,gender,healthConditions,userAgent:navigator.userAgent,taskVersion:'NeuroColorAtlas_iPhone_SBS_CIELAB17_v4_ultrasubtle'};
+  participant={participantCode,age,gender,healthConditions,userAgent:navigator.userAgent,taskVersion:'NeuroColorAtlas_iPhone_SBS_CIELAB17_v5_visible_subtle_bubble'};
   trialIndex=-1;currentStimulus=null;eventLog=[];
   showScreen('stimulusScreen');
   requestExperimentFullscreen();
