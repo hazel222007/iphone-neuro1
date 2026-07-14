@@ -1,71 +1,32 @@
-# NeuroColor Atlas – Exact Image Colour-Room Project
+# NeuroColor Atlas – iPhone Stereoscopic VR Experiment
 
-This project uses the exact blue room image as the base visual stimulus template and provides two browser-based protocols:
+This version uses the supplied **1774 × 887 stereoscopic room reference** as the fixed spatial template. The room geometry, furniture, shoe rack, headset mask, and left–right alignment are preserved across all conditions.
 
-1. **Static Colour Room**
-   - best for strict physiological interpretation
+## Included experiment
 
-2. **Subtle Moving Cue Colour Room**
-   - best for older adults / dementia participants to reduce boredom and maintain attention
-   - cue updated to be more clearly visible while still gentle
+Open `index.html`, then select **Open the VR Experiment**. The active protocol is `vr_subtle_moving_protocol.html`.
 
-## Changes incorporated
+The protocol contains:
 
-- the exact room image is included in `assets/base/exact_blue_room.png`
-- image-based colour stimuli are provided for all 17 colours in `assets/stimuli/`
-- **no rest breaks**
-- at the beginning, the protocol asks only:
-  - participant code
-  - age
-  - gender
-  - any health conditions (optional; blank is recorded as **None**)
-- when the experiment starts, it attempts to go **full screen**
-- timings:
-  - initial neutral grey baseline: 90 seconds
-  - neutral grey baseline before each colour: 30 seconds
-  - colour-room exposure: 150 seconds
+- 17 CIELAB-defined room conditions;
+- a neutral grey baseline at L*=50, a*=0, b*=0;
+- 90-second initial baseline;
+- 30-second baseline before every condition;
+- 150-second room exposure;
+- a very subtle, synchronized moving bubble in both eye views during baseline and colour exposure;
+- fullscreen, landscape-orientation, and screen-wake-lock requests where supported;
+- CSV and JSON event logging.
 
-## Main files
+## iPhone use
 
-- `index.html` – landing page with links to both protocols
-- `static_protocol.html` – static colour room protocol
-- `subtle_moving_protocol.html` – subtle moving cue protocol
-- `post_experiment_questionnaire.html` – separate subjective ratings after exposure
+Serve this folder over HTTPS. Open the site in Safari, add it to the Home Screen, launch it from the Home Screen, rotate the phone to landscape, and press **Start Full-Screen Experiment**. The manifest is configured for fullscreen landscape display.
 
-## GitHub Pages
+Do not change screen brightness, True Tone, Night Shift, colour filters, or automatic brightness between participants. For research use, verify the final displayed colours on the actual iPhone through device-specific measurement and calibration.
 
-Upload the whole folder to a GitHub repository and enable GitHub Pages from the root of the `main` branch.
+## CIELAB targets
 
+The 12 chromatic conditions use L*=60 and approximately C*=35. The five achromatic conditions use L*=10, 30, 50, 70, and 90 with a*=b*=0. Values are encoded in the experiment log and shown on the setup screen.
 
-## VR-compatible version
+## Notes
 
-This package now includes VR-compatible protocol files:
-
-- `vr_static_protocol.html`
-- `vr_subtle_moving_protocol.html`
-
-These use A-Frame/WebXR where supported. On iPhone Safari, the files automatically fall back to stereoscopic side-by-side Cardboard mode for phone-based VR headsets such as Irusu Monster.
-
-See `docs/vr_conversion_notes.md` for implementation details.
-
-
-## Irusu Monster iPhone tuning update
-
-The VR files were tuned for iPhone 16 Pro Max inside the Irusu Monster headset:
-- `vr_static_protocol.html`
-- `vr_subtle_moving_protocol.html`
-
-Use the phone in landscape orientation inside the headset. If a phone screenshot appears vertically stacked, that is the rotated screenshot view of the same two-eye layout.
-
-The subtle moving cue now appears during both neutral grey baseline and colour exposure.
-
-
-## Irusu Monster optical profile update
-
-The VR files were retuned using the headset specifications provided:
-- 42 mm HD lenses
-- 110° field of view
-- iPhone 16 Pro Max display
-- phone must be used in landscape mode inside the headset
-
-The Cardboard fallback now uses a fixed landscape side-by-side view with lens-style rounded vignettes and wider image fill. It does not stack the views in portrait; instead it asks the user to rotate the phone.
+The static bubble present in the supplied reference was removed from the stimulus assets. The experiment draws the bubble separately, allowing identical subtle movement in both eye views. The active experimental file is `vr_subtle_moving_protocol.html`.

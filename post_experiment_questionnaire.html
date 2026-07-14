@@ -35,7 +35,7 @@
     <div class="grid">
       <div><label for="participantCode">Participant code</label><input id="participantCode" placeholder="e.g., NC001" /></div>
       <div><label for="protocolMode">Protocol used</label>
-        <select id="protocolMode"><option>static</option><option>moving</option></select>
+        <select id="protocolMode"><option value="stereo_vr_subtle_moving_cue">Stereoscopic VR with subtle moving cue</option></select>
       </div>
     </div>
     <button onclick="startQ()">Start Questionnaire</button>
@@ -111,193 +111,23 @@
 
 <script>
 const COLOURS = [
-  {
-    "no": 1,
-    "name": "Red",
-    "hex": "#E09289",
-    "L": 70,
-    "a": 34.6,
-    "b": 20.0,
-    "C": 40,
-    "h": 30,
-    "file": "assets/stimuli/01_Red.png"
-  },
-  {
-    "no": 2,
-    "name": "Red-Orange",
-    "hex": "#E79875",
-    "L": 70,
-    "a": 25.7,
-    "b": 30.6,
-    "C": 40,
-    "h": 50,
-    "file": "assets/stimuli/02_Red-Orange.png"
-  },
-  {
-    "no": 3,
-    "name": "Orange",
-    "hex": "#D7A067",
-    "L": 70,
-    "a": 13.7,
-    "b": 37.6,
-    "C": 40,
-    "h": 70,
-    "file": "assets/stimuli/03_Orange.png"
-  },
-  {
-    "no": 4,
-    "name": "Yellow-Orange_Amber",
-    "hex": "#C8A762",
-    "L": 70,
-    "a": 3.5,
-    "b": 39.8,
-    "C": 40,
-    "h": 85,
-    "file": "assets/stimuli/04_Yellow-Orange_Amber.png"
-  },
-  {
-    "no": 5,
-    "name": "Yellow",
-    "hex": "#B7AD62",
-    "L": 70,
-    "a": -6.9,
-    "b": 39.4,
-    "C": 40,
-    "h": 100,
-    "file": "assets/stimuli/05_Yellow.png"
-  },
-  {
-    "no": 6,
-    "name": "Yellow-Green_Lime",
-    "hex": "#9DB46B",
-    "L": 70,
-    "a": -20.0,
-    "b": 34.6,
-    "C": 40,
-    "h": 120,
-    "file": "assets/stimuli/06_Yellow-Green_Lime.png"
-  },
-  {
-    "no": 7,
-    "name": "Green",
-    "hex": "#79BA80",
-    "L": 70,
-    "a": -32.8,
-    "b": 22.9,
-    "C": 40,
-    "h": 145,
-    "file": "assets/stimuli/07_Green.png"
-  },
-  {
-    "no": 8,
-    "name": "Blue-Green_Teal",
-    "hex": "#4EBE9D",
-    "L": 70,
-    "a": -39.4,
-    "b": 6.9,
-    "C": 40,
-    "h": 170,
-    "file": "assets/stimuli/08_Blue-Green_Teal.png"
-  },
-  {
-    "no": 9,
-    "name": "Cyan",
-    "hex": "#0FBFBD",
-    "L": 70,
-    "a": -38.6,
-    "b": -10.4,
-    "C": 40,
-    "h": 195,
-    "file": "assets/stimuli/09_Cyan.png"
-  },
-  {
-    "no": 10,
-    "name": "Turquoise",
-    "hex": "#00BCD9",
-    "L": 70,
-    "a": -30.6,
-    "b": -25.7,
-    "C": 40,
-    "h": 220,
-    "file": "assets/stimuli/10_Turquoise.png"
-  },
-  {
-    "no": 11,
-    "name": "Blue",
-    "hex": "#74AEF3",
-    "L": 70,
-    "a": 0.0,
-    "b": -40.0,
-    "C": 40,
-    "h": 270,
-    "file": "assets/stimuli/11_Blue.png"
-  },
-  {
-    "no": 12,
-    "name": "Blue-Violet_Indigo",
-    "hex": "#94A8F1",
-    "L": 70,
-    "a": 10.4,
-    "b": -38.6,
-    "C": 40,
-    "h": 285,
-    "file": "assets/stimuli/12_Blue-Violet_Indigo.png"
-  },
-  {
-    "no": 13,
-    "name": "Violet",
-    "hex": "#B79FE7",
-    "L": 70,
-    "a": 22.9,
-    "b": -32.8,
-    "C": 40,
-    "h": 305,
-    "file": "assets/stimuli/13_Violet.png"
-  },
-  {
-    "no": 14,
-    "name": "Purple",
-    "hex": "#CD99DA",
-    "L": 70,
-    "a": 30.6,
-    "b": -25.7,
-    "C": 40,
-    "h": 320,
-    "file": "assets/stimuli/14_Purple.png"
-  },
-  {
-    "no": 15,
-    "name": "Magenta",
-    "hex": "#DE93CA",
-    "L": 70,
-    "a": 36.3,
-    "b": -16.9,
-    "C": 40,
-    "h": 335,
-    "file": "assets/stimuli/15_Magenta.png"
-  },
-  {
-    "no": 16,
-    "name": "Pink_Rose",
-    "hex": "#EA90B9",
-    "L": 70,
-    "a": 39.4,
-    "b": -6.9,
-    "C": 40,
-    "h": 350,
-    "file": "assets/stimuli/16_Pink_Rose.png"
-  },
-  {
-    "no": 17,
-    "name": "Red-Violet_Crimson",
-    "hex": "#F28F9A",
-    "L": 70,
-    "a": 38.6,
-    "b": 10.4,
-    "C": 40,
-    "h": 15,
-    "file": "assets/stimuli/17_Red-Violet_Crimson.png"
-  }
+  {no:1,name:'Red',hex:'#CA7892',L:60,a:35.0,b:0.0,C:35,h:0,file:'assets/stimuli/01_Red.png'},
+  {no:2,name:'Red–Orange',hex:'#CB7B73',L:60,a:30.3,b:17.5,C:35,h:30,file:'assets/stimuli/02_Red-Orange.png'},
+  {no:3,name:'Orange–Yellow',hex:'#BD845C',L:60,a:17.5,b:30.3,C:35,h:60,file:'assets/stimuli/03_Orange-Yellow.png'},
+  {no:4,name:'Yellow',hex:'#A58F52',L:60,a:0.0,b:35.0,C:35,h:90,file:'assets/stimuli/04_Yellow.png'},
+  {no:5,name:'Yellow–Green',hex:'#85985A',L:60,a:-17.5,b:30.3,C:35,h:120,file:'assets/stimuli/05_Yellow-Green.png'},
+  {no:6,name:'Green',hex:'#609E71',L:60,a:-30.3,b:17.5,C:35,h:150,file:'assets/stimuli/06_Green.png'},
+  {no:7,name:'Green–Cyan',hex:'#32A190',L:60,a:-35.0,b:0.0,C:35,h:180,file:'assets/stimuli/07_Green-Cyan.png'},
+  {no:8,name:'Cyan / Blue–Green',hex:'#00A0AE',L:60,a:-30.3,b:-17.5,C:35,h:210,file:'assets/stimuli/08_Cyan_Blue-Green.png'},
+  {no:9,name:'Cyan–Blue / Azure',hex:'#249CC5',L:60,a:-17.5,b:-30.3,C:35,h:240,file:'assets/stimuli/09_Cyan-Blue_Azure.png'},
+  {no:10,name:'Blue',hex:'#6294CE',L:60,a:0.0,b:-35.0,C:35,h:270,file:'assets/stimuli/10_Blue.png'},
+  {no:11,name:'Blue–Purple / Indigo',hex:'#9489C6',L:60,a:17.5,b:-30.3,C:35,h:300,file:'assets/stimuli/11_Blue-Purple_Indigo.png'},
+  {no:12,name:'Purple–Magenta',hex:'#B77EB0',L:60,a:30.3,b:-17.5,C:35,h:330,file:'assets/stimuli/12_Purple-Magenta.png'},
+  {no:13,name:'Near-black',hex:'#1B1B1B',L:10,a:0.0,b:0.0,C:0,h:null,file:'assets/stimuli/13_Near-black.png'},
+  {no:14,name:'Dark grey',hex:'#474747',L:30,a:0.0,b:0.0,C:0,h:null,file:'assets/stimuli/14_Dark-grey.png'},
+  {no:15,name:'Medium grey',hex:'#777777',L:50,a:0.0,b:0.0,C:0,h:null,file:'assets/stimuli/15_Medium-grey.png'},
+  {no:16,name:'Light grey',hex:'#ABABAB',L:70,a:0.0,b:0.0,C:0,h:null,file:'assets/stimuli/16_Light-grey.png'},
+  {no:17,name:'Near-white',hex:'#E2E2E2',L:90,a:0.0,b:0.0,C:0,h:null,file:'assets/stimuli/17_Near-white.png'}
 ];
 let participant={}, idx=0, log=[], finalData={};
 
