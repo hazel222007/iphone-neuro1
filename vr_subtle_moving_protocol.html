@@ -190,15 +190,15 @@ function startCue(hex){
   const animate=ts=>{
     const t=(ts-cueStartPerf)/1000;
     const frame=$('stereoFrame').getBoundingClientRect();
-    // Make the circular cue travel visibly across a broad area of each picture.
-    // The same path is applied to both eye views so VR fusion remains comfortable.
+    // Make the circular cue travel across almost the whole picture area in a smooth path.
+    // The same motion is mirrored in both eye views so VR fusion stays comfortable.
     const monoWidth=frame.width*0.46;
-    const ampX=Math.max(120,monoWidth*0.22);
-    const ampY=Math.max(85,frame.height*0.17);
-    const dx=(ampX*Math.sin((2*Math.PI*t)/7.2))+(ampX*0.34*Math.sin((2*Math.PI*t)/4.8));
-    const dy=(ampY*Math.cos((2*Math.PI*t)/8.9))+(ampY*0.26*Math.sin((2*Math.PI*t)/5.9));
-    const scale=1+0.025*Math.sin((2*Math.PI*t)/6.8);
-    const opacity=.35+.03*Math.sin((2*Math.PI*t)/7.7);
+    const ampX=Math.max(190,monoWidth*0.34);
+    const ampY=Math.max(130,frame.height*0.26);
+    const dx=(ampX*Math.sin((2*Math.PI*t)/10.5))+(ampX*0.22*Math.sin((2*Math.PI*t)/6.6));
+    const dy=(ampY*Math.cos((2*Math.PI*t)/12.2))+(ampY*0.18*Math.sin((2*Math.PI*t)/7.4));
+    const scale=1+0.03*Math.sin((2*Math.PI*t)/8.5);
+    const opacity=.35+.035*Math.sin((2*Math.PI*t)/9.2);
     ['cueLeft','cueRight'].forEach(id=>{
       const el=$(id);
       el.style.transform=`translate(-50%,-50%) translate(${dx.toFixed(2)}px,${dy.toFixed(2)}px) scale(${scale.toFixed(3)})`;
@@ -265,7 +265,7 @@ async function finishTask(){
   stopCue();clearInterval(timerHandle);logEvent('task_finished_complete');await releaseWakeLock();
   try{if(document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen();else if(document.webkitFullscreenElement&&document.webkitExitFullscreen)document.webkitExitFullscreen()}catch(_e){}
   showScreen('endScreen');
-  $('summaryBox').innerHTML=`<h3>Session Summary</h3><p><strong>Participant:</strong> ${participant.participantCode}</p><p><strong>Conditions completed:</strong> ${trialOrder.length} / ${trialOrder.length}</p><p><strong>Protocol:</strong> stereoscopic iPhone VR with large-range moving circle cue</p>`;
+  $('summaryBox').innerHTML=`<h3>Session Summary</h3><p><strong>Participant:</strong> ${participant.participantCode}</p><p><strong>Conditions completed:</strong> ${trialOrder.length} / ${trialOrder.length}</p><p><strong>Protocol:</strong> stereoscopic iPhone VR with everywhere moving circle cue</p>`;
 }
 
 function escapeCSV(value){if(value===null||value===undefined)return'';const str=String(value);return/[",\n]/.test(str)?'"'+str.replace(/"/g,'""')+'"':str}

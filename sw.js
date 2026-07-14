@@ -1,4 +1,4 @@
-const CACHE='neurocolor-vr-cielab17-v5-large-range-circle';
+const CACHE='neurocolor-vr-cielab17-v6-everywhere-circle';
 const ASSETS=[
   './','./index.html','./vr_subtle_moving_protocol.html','./manifest.webmanifest',
   './assets/icon-180.png','./assets/icon-512.png','./assets/stimuli/baseline_grey.png',
